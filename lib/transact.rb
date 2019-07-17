@@ -45,23 +45,25 @@ module Transact
 
       @attributes = parsed_attributes || {}
       update_attributes(options) if @attributes.empty?
-      puts @attributes
+
       @status = @attributes[:status]
     end
 
     def update_attributes(options)
       @attributes = symbolize_keys!(@attributes.merge!(options))
-      @config.redis_client.set(@transaction_id, @attributes.to_json)
+      redis_set(@transaction_id, @attributes.to_json)
       @status = @attributes[:status]
     end
 
     def clear!
       @attributes = @status = nil
-      @config.redis_client.del(@transaction_id)
+      redis_delete(@transaction_id)
     end
 
+    private
+
     def parsed_attributes
-      data = @config.redis_client.get(@transaction_id)
+      data = redis_get(@transaction_id)
       return nil if data.nil?
 
       begin
@@ -76,15 +78,31 @@ module Transact
       response
     end
 
-    def symbolize_keys! response = @attributes
+    def symbolize_keys!(response = @attributes)
       response.keys.each do |key|
-        response[(key.to_sym rescue key) || key] = response.delete(key)
+        response[(begin
+                    key.to_sym
+                  rescue StandardError
+                    key
+                  end) || key] = response.delete(key)
       end
 
       response
     end
+
+    # redis methods
+    def redis_get(key)
+      @config.redis_client.get(key)
+    end
+
+    def redis_set(key, value)
+      @config.redis_client.set(key, value)
+    end
+
+    def redis_delete(key)
+      @config.redis_client.del(key)
+    end
   end
 
   class Error < StandardError; end
-  # Your code goes here...
 end
