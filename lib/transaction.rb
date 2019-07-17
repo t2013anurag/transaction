@@ -1,9 +1,9 @@
-require 'transact/version'
+require 'transaction/version'
 require 'securerandom'
 require 'redis'
 require 'json'
 
-module Transact
+module Transaction
   class << self
     attr_accessor :configuration
   end

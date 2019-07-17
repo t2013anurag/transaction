@@ -1,6 +1,6 @@
-RSpec.describe Transact do
+RSpec.describe Transaction do
   it 'has a version number' do
-    expect(Transact::VERSION).not_to be nil
+    expect(Transaction::VERSION).not_to be nil
   end
 
   it 'does something useful' do

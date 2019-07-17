@@ -1,16 +1,16 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'transact/version'
+require 'transaction/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'transact'
-  spec.version       = Transact::VERSION
+  spec.name          = 'transaction'
+  spec.version       = Transaction::VERSION
   spec.authors       = ['Anurag Tiwari']
   spec.email         = ['tiwari.anurag126@gmail.com']
 
   spec.summary       = 'This is an awesome gem.'
   spec.description   = 'This is an awesome gem.'
-  spec.homepage      = 'https://github.com/t2013anurag/transact'
+  spec.homepage      = 'https://github.com/t2013anurag/transaction'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -19,8 +19,8 @@ Gem::Specification.new do |spec|
     spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
     spec.metadata['homepage_uri'] = spec.homepage
-    spec.metadata['source_code_uri'] = 'https://github.com/t2013anurag/transact'
-    spec.metadata['changelog_uri'] = 'https://github.com/t2013anurag/transact/blob/master/CHANGELOG.md'
+    spec.metadata['source_code_uri'] = 'https://github.com/t2013anurag/transaction'
+    spec.metadata['changelog_uri'] = 'https://github.com/t2013anurag/transaction/blob/master/CHANGELOG.md'
   else
     raise 'RubyGems 2.0 or newer is required to protect against ' \
       'public gem pushes.'

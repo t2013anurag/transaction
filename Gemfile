@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in transact.gemspec
+# Specify your gem's dependencies in transaction.gemspec
 gemspec
 
 gem 'redis'
