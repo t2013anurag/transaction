@@ -8,12 +8,7 @@ module Transact
     attr_accessor :configuration
   end
 
-  STATUSES = {
-    queued: 0,
-    processing: 1,
-    success: 2,
-    error: 3
-  }.freeze
+  STATUSES = [:queued, :processing, :success, :error].freeze
 
   DEFAULT_ATTRIBUTES = {
     status: :queued,
@@ -55,15 +50,39 @@ module Transact
       @status = @attributes[:status]
     end
 
+    def update_status(status)
+      status = status.to_sym
+      raise 'Invalid Status' unless STATUSES.include?(status.to_sym)
+
+      update_attributes(status: status)
+    end
+
+    def start!
+      update_status(:processing)
+    end
+
+    def finish! status, clear = false
+      update_status(status)
+
+      redis_delete if clear
+    end
+
     def clear!
       @attributes = @status = nil
-      redis_delete(@transaction_id)
+      redis_delete
+    end
+
+    def refresh!
+      @attributes = parsed_attributes
+      raise 'Transaction expired' if @attributes.nil?
+
+      @status = @attributes[:status]
     end
 
     private
 
     def parsed_attributes
-      data = redis_get(@transaction_id)
+      data = redis_get
       return nil if data.nil?
 
       begin
@@ -91,16 +110,16 @@ module Transact
     end
 
     # redis methods
-    def redis_get(key)
-      @config.redis_client.get(key)
+    def redis_get
+      @config.redis_client.get(@transaction_id)
     end
 
     def redis_set(key, value)
       @config.redis_client.set(key, value)
     end
 
-    def redis_delete(key)
-      @config.redis_client.del(key)
+    def redis_delete
+      @config.redis_client.del(@transaction_id)
     end
   end
 
