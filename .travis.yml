@@ -1,9 +1,14 @@
 ---
+brances:
+  - master
 sudo: false
 language: ruby
 cache: bundler
 rvm:
   - 2.5.3
+services:
+  - redis-server
 before_install: gem install bundler -v 2.0.1
+before_script:
 script:
-  rake spec
+  bundle exec rake spec
