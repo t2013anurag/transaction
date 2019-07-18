@@ -25,6 +25,7 @@ Metrics/BlockLength:
   Max: 20
   Exclude:
     - 'spec/**/*'
+    - 'transaction.gemspec'
 
 # Offense count: 3
 Style/Documentation:
