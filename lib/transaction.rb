@@ -39,13 +39,13 @@ module Transaction
       @attributes = parsed_attributes || {}
       update_attributes(options) if @attributes.empty?
 
-      @status = @attributes[:status]
+      @status = @attributes[:status].to_s
     end
 
     def update_attributes(options)
       @attributes = symbolize_keys!(@attributes.merge!(options))
       redis_set(@transaction_id, @attributes.to_json)
-      @status = @attributes[:status]
+      @status = @attributes[:status].to_s
     end
 
     def update_status(status)
@@ -59,7 +59,7 @@ module Transaction
       update_status(:processing)
     end
 
-    def finish! status, clear = false
+    def finish!(status, clear = false)
       update_status(status)
 
       redis_delete if clear
@@ -74,7 +74,7 @@ module Transaction
       @attributes = parsed_attributes
       raise 'Transaction expired' if @attributes.nil?
 
-      @status = @attributes[:status]
+      @status = @attributes[:status].to_s
     end
 
     private

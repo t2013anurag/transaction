@@ -1,4 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/transaction.svg)](https://badge.fury.io/rb/transaction)
+[![Build Status](https://travis-ci.com/t2013anurag/transaction.svg?branch=master)](https://travis-ci.com/t2013anurag/transaction)
+
 
 # Transaction
 

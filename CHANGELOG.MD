@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.1] - 2019-07-18
 
 ### Added
+  - Travis configuration.
+  - Unit tests for methods.
+
+### Changed
+  - Status is now always returned as a string (not a sym)
+
+## [0.1.1] - 2019-07-18
+
+### Added
   - Changelog to track version changes.
 
 ### Removed
