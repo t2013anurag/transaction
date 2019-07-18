@@ -1,5 +1,7 @@
 [![Gem Version](https://badge.fury.io/rb/transaction.svg)](https://badge.fury.io/rb/transaction)
 [![Build Status](https://travis-ci.com/t2013anurag/transaction.svg?branch=master)](https://travis-ci.com/t2013anurag/transaction)
+[![Maintainability](https://api.codeclimate.com/v1/badges/50600537b315c364fc28/maintainability)](https://codeclimate.com/github/t2013anurag/transaction/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/50600537b315c364fc28/test_coverage)](https://codeclimate.com/github/t2013anurag/transaction/test_coverage)
 
 
 # Transaction
