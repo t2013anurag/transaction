@@ -8,7 +8,7 @@ module Transaction
     attr_accessor :configuration
   end
 
-  STATUSES = [:queued, :processing, :success, :error].freeze
+  STATUSES = %i[queued processing success error].freeze
 
   DEFAULT_ATTRIBUTES = {
     status: :queued
@@ -31,7 +31,8 @@ module Transaction
     attr_reader :transaction_id, :status, :attributes
 
     def initialize(transaction_id: nil, options: {})
-      @transaction_id = transaction_id || "transact-#{SecureRandom.urlsafe_base64(16)}"
+      @transaction_id = transaction_id ||
+                        "transact-#{SecureRandom.urlsafe_base64(16)}"
       @config = Configuration.new
 
       options = DEFAULT_ATTRIBUTES.merge(options)
@@ -85,7 +86,7 @@ module Transaction
 
       begin
         response = JSON.parse(data)
-        raise 'Invalid response from redis. Expected Hash' unless response.is_a? Hash
+        raise 'Invalid type. Expected Hash' unless response.is_a? Hash
 
         response = symbolize_keys!(response)
       rescue JSON::ParserError
