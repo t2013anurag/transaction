@@ -11,9 +11,7 @@ module Transaction
   STATUSES = [:queued, :processing, :success, :error].freeze
 
   DEFAULT_ATTRIBUTES = {
-    status: :queued,
-    pusher_trigger: false,
-    event: 'status'
+    status: :queued
   }.freeze
 
   def self.configure

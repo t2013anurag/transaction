@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/transaction.svg)](https://badge.fury.io/rb/transaction)
+
 # Transaction
 
 Transaction is a small library to help you out with tracking the progress of your long running tasks.

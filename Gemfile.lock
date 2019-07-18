@@ -1,7 +1,8 @@
 PATH
   remote: .
   specs:
-    transaction (0.1.0)
+    transaction (0.1.1)
+      redis (>= 4.0.2)
 
 GEM
   remote: https://rubygems.org/
@@ -29,7 +30,6 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   rake (~> 10.0)
-  redis
   rspec (~> 3.0)
   transaction!
 
