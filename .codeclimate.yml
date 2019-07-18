@@ -1,0 +1,22 @@
+version: "2"
+plugins:
+  rubocop:
+    enabled: true
+    channel: 'rubocop-0-60'
+    config:
+      file: ".rubocop.yml"
+  fixme:
+    enabled: true
+  bundler-audit:
+    enabled: true
+  reek:
+    enabled: true
+    checks:
+      IrresponsibleModule: # class has no descriptive comment
+        enabled: false
+      InstanceVariableAssumption: # assumes too much for instance variable (JSON api resources does)
+        enabled: false
+  flog:
+    enabled: true
+    config:
+      score_threshold: 20.0
