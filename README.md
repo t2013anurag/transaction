@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.com/t2013anurag/transaction.svg?branch=master)](https://travis-ci.com/t2013anurag/transaction)
 [![Maintainability](https://api.codeclimate.com/v1/badges/50600537b315c364fc28/maintainability)](https://codeclimate.com/github/t2013anurag/transaction/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/50600537b315c364fc28/test_coverage)](https://codeclimate.com/github/t2013anurag/transaction/test_coverage)
+[![Depfu](https://badges.depfu.com/badges/bfb8415f8ae6c5c12f023ebc28d14c32/count.svg)](https://depfu.com/github/t2013anurag/transaction?project_id=8568)
 
 
 # Transaction
