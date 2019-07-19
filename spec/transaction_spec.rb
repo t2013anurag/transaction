@@ -56,6 +56,21 @@ RSpec.describe Transaction do
       end
     end
 
+    context '#update_attributes' do
+      it 'raises argument error if invalid type is passed' do
+        expect { t.update_attributes('wrong_type') }
+          .to raise_error(ArgumentError, /Invalid type. Expected Hash/)
+      end
+
+      it 'updates the attributes' do
+        attrs = { failed: false }
+
+        t.update_attributes(attrs)
+        expect(t.attributes).to have_key(:failed)
+        expect(t.attributes[:failed]).to eq(false)
+      end
+    end
+
     context '#finish!' do
       it 'finish with no clear' do
         t.finish!('success')
@@ -68,7 +83,7 @@ RSpec.describe Transaction do
 
         expect(t.status).to eq('success')
         expect { t.refresh! }
-          .to raise_error(RuntimeError, /Transaction expired/)
+          .to raise_error(StandardError, /Transaction expired/)
       end
     end
   end

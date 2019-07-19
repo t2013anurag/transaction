@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.5] - 2019-07-18
+## [0.1.5] - 2019-07-19
+
+### Added
+  - specs for update_attributes
+
+### Changed
+  - Raise ArgumentError if invalid attributes are passed in `update_attributes`
+  - Raise StandardError if transaction has expired.
+  - specs for `refresh!`
+
+
+## [0.1.5] - 2019-07-19
 
 ### Added
   - Readme examples

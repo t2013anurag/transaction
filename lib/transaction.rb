@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'transaction/version'
 require 'securerandom'
 require 'redis'
@@ -44,6 +46,10 @@ module Transaction
     end
 
     def update_attributes(options)
+      unless options.is_a? Hash
+        raise ArgumentError, 'Invalid type. Expected Hash'
+      end
+
       @attributes = symbolize_keys!(@attributes.merge!(options))
       redis_set(@transaction_id, @attributes.to_json)
       @status = @attributes[:status].to_s
@@ -73,7 +79,7 @@ module Transaction
 
     def refresh!
       @attributes = parsed_attributes
-      raise 'Transaction expired' if @attributes.nil?
+      raise StandardError, 'Transaction expired' if @attributes.nil?
 
       @status = @attributes[:status].to_s
     end
