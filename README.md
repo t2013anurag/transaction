@@ -31,6 +31,28 @@ Or install it yourself as:
 
 ## Usage
 
+### Initializing a transaction
+A transaction can be newly initialized or be found with the given transaction_id. If no transaction is found then a new transaction in created.
+```ruby
+  attributes = {created_at: Time.now, count: 0 }
+  transaction = Transaction::Client.new(options: attributes) # creates a new instance of transaction
+  transaction1 = Transaction::Client.new(transaction_id: transaction.id) # finds the transaction.
+```
+
+### Accepted methods for a transaction
+The default status of any new transaction is **`queued`**.
+Accepted statuses: **['queued', 'processing', 'success', 'error']**. Any transaction at any point will be in one of the states.
+
+method | params | description      
+|:-:|---|---
+start!  | - | moves to status `processing` from `queued`.
+finish! | (status='success', clear=false) | moves to the passed status (default: `success`). `clear = true` destroys the entry from redis cache.
+clear!  | - | destroys the current entry from redis cache.
+refresh! | - | sync current instance transaction with latest cache (Other instance of transaction initiated with same transaction id can update the attributes. Hence `refresh!` is required.).
+update_status | status | moves to the passed status. Raises `'Invalid Status'` error if status is not in one of the **Accepted statuses** defined above.
+update_attributes | options = {} | merges the passed options hash to the current attributes object.
+
+
 ### Ex 1: Simple transaction
 ```ruby
     def sum_numbers
