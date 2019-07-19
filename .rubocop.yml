@@ -1,1 +1,5 @@
 inherit_from: .rubocop_todo.yml
+
+AllCops:
+  DisabledByDefault: false
+  TargetRubyVersion: 2.4.0

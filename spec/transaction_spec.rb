@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Transaction do
   it 'has a version number' do
     expect(Transaction::VERSION).not_to be nil

@@ -7,7 +7,8 @@
 
 # Transaction
 
-Transaction is a small library to help you out with tracking the progress of your long running tasks.
+Transaction is a small library which helps track status of running/upcoming tasks. These tasks can be a cron job, background jobs or a simple method. Any task can be plugged into a transaction block. Transaction uses redis to store the current status along with the additional attributes(provided during the initialization or transaction updation.)
+
 To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
@@ -30,7 +31,70 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Ex 1: Simple transaction
+```ruby
+    def sum_numbers
+      arr = (0...10_000).to_a
+      options = { created_at: Time.now, total: arr.count  }
+      transaction = Transaction::Client.new(options: options)
+
+      transaction.start!
+      puts transaction.status # Status moves from `queued` to `processing`
+
+      count = 0
+      (1..10_000).each do |i|
+        # do some other stuff
+        transaction.update_attributes(count: count += 1)
+        # do some other stuff
+      end
+
+      transaction.finish! # By default moves to status 'success'.
+
+      puts transaction.status # 'success'
+      puts transaction.attributes # {:status=>:success, :created_at=>2019-07-19 06:06:43 +0530, :total=>10000, :count=>10000}
+    end
+```
+
+### Ex 2: Initialize or find a transaction with a transaction id.
+```ruby
+    def task1
+      transaction = Transaction::Client.new
+      SomeWorkerJob.perform_later(transaction.transaction_id) # sidekiq or resque
+    end
+
+    class SomeWorkerJob < ApplicationJob
+      queue_as :default
+
+      def perform transaction_id
+        tr = Transaction::Client.new(transaction_id: transaction_id) # intialize with given transaction_id
+        tr.start!
+
+        # do a bunch of stuff
+        tr.finish!
+      end
+    end
+```
+
+### Keeping transactions in sync.
+Let's say we have 2 transactions `t1` and `t2` both initialized with same transaction id. If `t2` updates the transaction, then `t1` can simple refresh the transaction to get in sync with `t2`. Note: the transaction will be refreshed with the most recent values. (Versioning transaction updates ??? => Woah that's a nice PR idea.)
+```ruby
+  def task1
+    transaction = Transaction::Client.new
+    transaction.start!
+    task2(transaction.transaction_id)
+    sleep(5) # just letting task 2 finish.
+
+    puts transaction.status # 'processing'
+    transaction.refresh!
+    puts transaction.status # 'error'
+  end
+
+  def task2 transaction_id # in some other context altogether. Task 2 is not at all related to task 1.
+    transaction = Transaction::Client.new(transaction_id: transaction_id)
+    # do some stuff
+    transaction.finish!('error')
+  end
+```
 
 ## Development
 

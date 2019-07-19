@@ -60,7 +60,7 @@ module Transaction
       update_status(:processing)
     end
 
-    def finish!(status, clear = false)
+    def finish!(status = 'success', clear = false)
       update_status(status)
 
       redis_delete if clear
