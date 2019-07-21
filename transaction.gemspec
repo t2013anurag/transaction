@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Anurag Tiwari']
   spec.email         = ['tiwari.anurag126@gmail.com']
 
-  spec.summary       = 'Manage transaction lifecycle - save/update status and information about the transaction.'
-  spec.description   = 'A transaction can be a simple method or a long background process. Managing transactions is difficult especially when information about the transaction is of importance. This library helps you manage information relevant to the transaction. Current status and additional info about the task is stored is stored in redis datastore. This information can be retrieved at any point of time until the transaction is expired.'
+  spec.summary       = 'Record status along with other relevant information of transactions/tasks.'
+  spec.description   = 'Record status along with other relevant information of transactions/tasks.'
   spec.homepage      = 'https://github.com/t2013anurag/transaction'
   spec.license       = 'MIT'
 

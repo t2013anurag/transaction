@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.5] - 2019-07-19
+## [0.1.7] - 2019-07-19
+
+### Added
+  - Setter/getter for redis client.
+  - documentation for configuring redis.
+
+### Changed
+  - allow fallback to local redis if no configuration provided.
+
+### Removed
+  - configuration yeilder class.
+
+
+## [0.1.6.beta] - 2019-07-19
 
 ### Added
   - specs for update_attributes

@@ -30,6 +30,20 @@ Or install it yourself as:
 
 ## Usage
 
+### Initializing Transaction gem -
+
+Connecting to redis via initializer (Rails app)
+```ruby
+  Transaction.configure do |config|
+    config.redis = Redis.new(url: 'redis://redis_url:6379') # defaults to localhost
+  end
+```
+
+Connecting to redis directly
+```ruby
+  Transaction.redis = Redis.new(url: 'redis://redis_url:6379')
+```
+
 ### Initializing a transaction
 A transaction can be newly initialized or be found with the given transaction_id. If no transaction is found then a new transaction in created.
 ```ruby
@@ -103,7 +117,6 @@ Let's say we have 2 transactions `t1` and `t2` both initialized with same transa
     transaction = Transaction::Client.new
     transaction.start!
     task2(transaction.transaction_id)
-    sleep(5) # just letting task 2 finish.
 
     puts transaction.status # 'processing'
     transaction.refresh!

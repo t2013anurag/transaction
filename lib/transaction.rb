@@ -6,10 +6,6 @@ require 'redis'
 require 'json'
 
 module Transaction
-  class << self
-    attr_accessor :configuration
-  end
-
   STATUSES = %i[queued processing success error].freeze
 
   DEFAULT_ATTRIBUTES = {
@@ -17,16 +13,20 @@ module Transaction
   }.freeze
 
   def self.configure
-    self.configuration ||= Configuration.new
-    yield(configuration)
+    yield self
   end
 
-  class Configuration
-    attr_accessor :redis_client
+  def self.redis=(hash = {})
+    @redis = if hash.instance_of?(Redis)
+               hash
+             else
+               Redis.new(hash)
+             end
+  end
 
-    def initialize
-      @redis_client = Redis.new
-    end
+  def self.redis
+    # use default redis if not set
+    @redis ||= Redis.new
   end
 
   class Client
@@ -35,7 +35,7 @@ module Transaction
     def initialize(transaction_id: nil, options: {})
       @transaction_id = transaction_id ||
                         "transact-#{SecureRandom.urlsafe_base64(16)}"
-      @config = Configuration.new
+      @redis_client = Transaction.redis
 
       options = DEFAULT_ATTRIBUTES.merge(options)
 
@@ -116,15 +116,15 @@ module Transaction
 
     # redis methods
     def redis_get
-      @config.redis_client.get(@transaction_id)
+      @redis_client.get(@transaction_id)
     end
 
     def redis_set(key, value)
-      @config.redis_client.set(key, value)
+      @redis_client.set(key, value)
     end
 
     def redis_delete
-      @config.redis_client.del(@transaction_id)
+      @redis_client.del(@transaction_id)
     end
   end
 
