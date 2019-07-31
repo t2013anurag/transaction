@@ -4,6 +4,7 @@ require 'transaction/version'
 require 'securerandom'
 require 'redis'
 require 'json'
+require 'transaction/helper'
 
 module Transaction
   STATUSES = %i[queued processing success error].freeze
@@ -29,6 +30,26 @@ module Transaction
     @redis ||= Redis.new
   end
 
+  def self.pubsub_client=(client:, trigger:, channel_name: nil, event: 'status')
+    @client = client
+    @trigger = trigger
+    @event = event
+    @channel_name = channel_name
+  end
+
+  def self.pubsub_client
+    if @client.nil? || @trigger.nil?
+      raise StandardError, 'Invalid pubsub client configuration'
+    end
+
+    {
+      client: @client,
+      trigger: @trigger,
+      event: @event,
+      channel_name: @channel_name
+    }
+  end
+
   class Client
     attr_reader :transaction_id, :status, :attributes
 
@@ -36,6 +57,7 @@ module Transaction
       @transaction_id = transaction_id ||
                         "transact-#{SecureRandom.urlsafe_base64(16)}"
       @redis_client = Transaction.redis
+      @pubsub_client = Transaction.pubsub_client
 
       options = DEFAULT_ATTRIBUTES.merge(options)
 
@@ -64,11 +86,12 @@ module Transaction
 
     def start!
       update_status(:processing)
+      trigger_event!(message: @status)
     end
 
-    def finish!(status = 'success', clear = false)
+    def finish!(status: 'success', clear: false, data: {})
       update_status(status)
-
+      trigger_event!({ message: 'Done' }.merge(data))
       redis_delete if clear
     end
 
@@ -82,6 +105,19 @@ module Transaction
       raise StandardError, 'Transaction expired' if @attributes.nil?
 
       @status = @attributes[:status].to_s
+    end
+
+    def trigger_event!(data = {})
+      return if @pubsub_client.empty?
+
+      data[:status] = @status
+
+      channel_name = @pubsub_client[:channel_name] || @transaction_id
+      client = @pubsub_client[:client]
+      trigger = @pubsub_client[:trigger]
+      event = @pubsub_client[:event]
+
+      client.send(trigger, channel_name, event, data)
     end
 
     private
