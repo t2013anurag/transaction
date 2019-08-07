@@ -135,18 +135,6 @@ module Transaction
       response
     end
 
-    def symbolize_keys!(response = @attributes)
-      response.keys.each do |key|
-        response[(begin
-                    key.to_sym
-                  rescue StandardError
-                    key
-                  end) || key] = response.delete(key)
-      end
-
-      response
-    end
-
     # redis methods
     def redis_get
       @redis_client.get(@transaction_id)
