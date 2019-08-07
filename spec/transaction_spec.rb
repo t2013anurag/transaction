@@ -73,13 +73,13 @@ RSpec.describe Transaction do
 
     context '#finish!' do
       it 'finish with no clear' do
-        t.finish!('success')
+        t.finish!(status: 'success')
 
         expect(t.status).to eq('success')
       end
 
       it 'finish with clear = true to clear the transaction' do
-        t.finish!('success', clear = true)
+        t.finish!(status: 'success', clear: true)
 
         expect(t.status).to eq('success')
         expect { t.refresh! }

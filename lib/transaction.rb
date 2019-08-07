@@ -38,9 +38,7 @@ module Transaction
   end
 
   def self.pubsub_client
-    if @client.nil? || @trigger.nil?
-      raise StandardError, 'Invalid pubsub client configuration'
-    end
+    return if @client.nil? || @trigger.nil?
 
     {
       client: @client,
@@ -108,10 +106,9 @@ module Transaction
     end
 
     def trigger_event!(data = {})
-      return if @pubsub_client.empty?
+      return if @pubsub_client.nil?
 
       data[:status] = @status
-
       channel_name = @pubsub_client[:channel_name] || @transaction_id
       client = @pubsub_client[:client]
       trigger = @pubsub_client[:trigger]
