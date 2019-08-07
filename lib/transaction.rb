@@ -84,7 +84,7 @@ module Transaction
 
     def start!
       update_status(:processing)
-      trigger_event!(message: @status)
+      trigger_event!(message: 'Processing')
     end
 
     def finish!(status: 'success', clear: false, data: {})
