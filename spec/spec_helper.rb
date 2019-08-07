@@ -3,6 +3,8 @@
 require 'bundler/setup'
 require 'transaction'
 require 'simplecov'
+require 'pusher'
+
 SimpleCov.start
 
 RSpec.configure do |config|

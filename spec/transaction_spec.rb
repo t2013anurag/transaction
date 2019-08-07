@@ -87,4 +87,69 @@ RSpec.describe Transaction do
       end
     end
   end
+
+  context 'Transaction with pubsub client' do
+    # Used pusher for testing purposes.
+    def stub_pusher(channel_name, data)
+      client = Transaction.pubsub_client
+
+      expect(PusherClient).to receive(:trigger).with(
+        # transaction_id is assigned as channel name if it is not present
+        channel_name || t.transaction_id,
+        Transaction.pubsub_client[:event],
+        data
+      ).and_return(true)
+    end
+
+    let(:t) { Transaction::Client.new }
+
+    before(:all) do
+      PusherClient = Pusher::Client.new(
+        app_id: 'some_app_id',
+        key: 'pusher_key',
+        secret: 'pusher_secret',
+        cluster: 'cluster',
+        use_tls: true
+      )
+
+      Transaction.pubsub_client = {
+        client: PusherClient,
+        trigger: 'trigger'
+      }
+    end
+
+    after(:each) do
+      t.clear!
+    end
+
+    it 'triggers an event on start!' do
+      stub_pusher(nil, message: 'Processing', status: 'processing')
+      t.start!
+    end
+
+    it 'triggers an event on finish!' do
+      stub_pusher(nil, message: 'Done', status: 'success')
+      t.finish!(status: 'success', clear: true)
+    end
+
+    it '#trigger_event!' do
+      stub_pusher(nil, count: 1, status: 'queued')
+      t.trigger_event!(count: 1)
+    end
+
+    it 'user defined channel and event' do
+      channel_name = 'my_transaction_channel'
+
+      Transaction.pubsub_client = {
+        client: PusherClient,
+        trigger: 'trigger',
+        channel_name: channel_name,
+        event: 'new_event'
+      }
+
+      data = { message: 'Processing', status: 'processing' }
+      stub_pusher(channel_name, data)
+      t.start!
+    end
+  end
 end
