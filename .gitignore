@@ -1,11 +1,24 @@
-/.bundle/
-/.yardoc
+# Ignore bundler config.
+/.bundle
+
+# Ignore Mac of tempfiles
+.DS_Store
+._.DS_Store
+
+# Ignore yard docs
+doc
+.yardoc/*
 /_yardoc/
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
 /coverage/
-/doc/
 /pkg/
 /spec/reports/
-/tmp/
 
 # rspec failure tracking
 .rspec_status
