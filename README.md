@@ -7,10 +7,18 @@
 
 # Transaction
 
-Transaction is a small library which helps track status of running/upcoming tasks. These tasks can be a cron job, background jobs or a simple method. Any task can be plugged into a transaction block. Transaction uses redis to store the current status along with the additional attributes(provided during the initialization or transaction updation.)
+Transaction is a small library which helps track the status of running/upcoming tasks. These tasks can be a cron job, background jobs or a simple method. Any task can be plugged into a transaction block.
 
-To experiment with that code, run `bin/console` for an interactive prompt.
+Transaction uses ***Redis*** to store the current status along with the additional attributes(provided during the initialization or transaction update.)
 
+The events within the transaction block can be published via ***Pubsub client(ex. Pusher, PubNub or any valid pubsub client)***. These events can be subscribed in the client app for the live status of the transaction.
+
+
+## Requirements
+
+Redis(>=3.0)
+
+Valid Pubsub client if messages need to be published.
 
 ## Installation
 
@@ -32,20 +40,43 @@ Or install it yourself as:
 
 ### Initializing Transaction gem -
 
-Connecting to redis via initializer (Rails app)
+In your rails app - create `config/transaction.rb`
 ```ruby
+
+  # Ex. pusher looks like | any pubsub client can be used.
+  require 'pusher'
+  PubsubClient = Pusher::Client.new(
+    app_id:"app_id",
+    key: "app_key",
+    secret: "app_secret",
+    cluster: "cluster_info",
+    use_tls: true
+  )
+
   Transaction.configure do |config|
-    config.redis = Redis.new(url: 'redis://redis_url:6379') # defaults to localhost
+    config.redis = Redis.new # defaults to localhost
+    config.pubsub_client = {client: PubsubClient, trigger: 'trigger'}
   end
 ```
 
-Connecting to redis directly
+There's an option to directly connect as well.
 ```ruby
   Transaction.redis = Redis.new(url: 'redis://redis_url:6379')
+  Transaction.pubsub_client = {client: PubsubClient, trigger: 'trigger'}
 ```
 
+The pubsub client accepts the following options -
+
+param | description
+|:-:|---
+client  | Any valid pubsub client. Ex. Pusher, PubNub.
+trigger | The method name which sends a message to a pubsub client. Ex. `'trigger'` for Pusher. `'publish'` for PubNub.
+channel_name | (Optional) Channel in which the message be published. Defaults to the value of `transaction_id`.
+event | (Optional) Event for which message will be published. Defaults to `'status'`
+
+
 ### Initializing a transaction
-A transaction can be newly initialized or be found with the given transaction_id. If no transaction is found then a new transaction in created.
+A transaction can be newly initialized or be found with the given transaction_id. If no transaction is found then a new transaction is created.
 ```ruby
   attributes = {created_at: Time.now, count: 0 }
   transaction = Transaction::Client.new(options: attributes) # creates a new instance of transaction
@@ -58,12 +89,13 @@ Accepted statuses: **['queued', 'processing', 'success', 'error']**. Any transac
 
 method | params | description
 |:-:|---|---
-start!  | - | moves to status `processing` from `queued`.
-finish! | (status='success', clear=false) | moves to the passed status (default: `success`). `clear = true` destroys the entry from redis cache.
-clear!  | - | destroys the current entry from redis cache.
-refresh! | - | sync current instance transaction with latest cache (Other instance of transaction initiated with same transaction id can update the attributes. Hence `refresh!` is required.).
-update_status | status | moves to the passed status. Raises `'Invalid Status'` error if status is not in one of the **Accepted statuses** defined above.
-update_attributes | options = {} | merges the passed options hash to the current attributes object. Raises `ArgumentError` if invalid type is passed in options.
+start!  | - | moves to status `processing` from `queued`. Publishes `{message: Processing}` to pubsub client if enabled.
+finish! | (status: 'success', clear: false, data: {}) | moves to the passed status (default: `success`). Any additional data passed is merged with default `{message: 'Done}'`. `clear = true` destroy the transaction entry from Redis cache.
+clear!  | - | destroys the current entry from Redis cache.
+refresh! | - | sync current instance transaction with the latest cache (Other instance of a transaction initiated with same transaction id can update the attributes. Hence `refresh!` is required.).
+update_status | status | moves to the passed status. Raises `'Invalid Status'` error if the status is not in one of the **Accepted statuses** defined above.
+update_attributes | options = {} | merges the passed options hash to the current attributes object.
+trigger_event! | data = {} | publishes the data via pubsub. Current `status` along with-param data is published(Note: Pubsub client needs to be configured.)
 
 
 ### Ex 1: Simple transaction
@@ -111,7 +143,7 @@ update_attributes | options = {} | merges the passed options hash to the current
 ```
 
 ### Keeping transactions in sync.
-Let's say we have 2 transactions `t1` and `t2` both initialized with same transaction id. If `t2` updates the transaction, then `t1` can simple refresh the transaction to get in sync with `t2`. Note: the transaction will be refreshed with the most recent values. (Versioning transaction updates ??? => Woah that's a nice PR idea.)
+Let's say we have 2 transactions `t1` and `t2` both initialized with the same transaction id. If `t2` updates the transaction, then `t1` can simply refresh the transaction to get in sync with `t2`. Note: the transaction will be refreshed with the most recent values. (Versioning transaction updates ??? => Woah that's a nice PR idea.)
 ```ruby
   def task1
     transaction = Transaction::Client.new
@@ -130,6 +162,26 @@ Let's say we have 2 transactions `t1` and `t2` both initialized with same transa
   end
 ```
 
+### Pushing messages to client via pubsub
+If a task is running in the background and the client needs to know the status. PubSub can be configured to do so.
+```ruby
+   # configure pubsub client as defined above in Initializing Transaction gem
+
+   def long_task
+    transaction = Transaction::Client.new
+    transaction.start!
+
+    items = (0..10_000).to_a
+
+    items.each do |index|
+      transaction.trigger_event!(count: index, total: items.count)
+      # do something
+    end
+
+    transaction.finish!(data: {count: items.count, total: items.count})
+   end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -142,7 +194,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/t2013a
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The gem is available as open-source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Code of Conduct
 
