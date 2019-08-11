@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    transaction (0.1.7)
+    transaction (1.0.0)
       redis (>= 4.0.2)
 
 GEM

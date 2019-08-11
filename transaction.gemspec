@@ -10,8 +10,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Anurag Tiwari']
   spec.email         = ['tiwari.anurag126@gmail.com']
 
-  spec.summary       = 'Record status along with other relevant information of transactions/tasks.'
-  spec.description   = 'Record status along with other relevant information of transactions/tasks.'
+  spec.summary       = 'Manage any task | transaction efficiently'
+  spec.description   = 'Record status along with other relevant information of
+  transactions or tasks. These tasks can be a cron job, large background jobs or
+  a simple method. Any task can be plugged into a transaction block. Transaction
+  uses Redis to store the current status along with other information.
+  The events within the transaction block can be published via Pubsub client
+  (ex. Pusher, PubNub or any valid pubsub client).These events can be
+  subscribed in the client app for the live status of the transaction.'
+
   spec.homepage      = 'https://github.com/t2013anurag/transaction'
   spec.license       = 'MIT'
 
