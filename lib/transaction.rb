@@ -2,9 +2,9 @@
 
 require 'transaction/version'
 require 'securerandom'
-require 'redis'
 require 'json'
 require 'transaction/helper'
+require 'transaction/redis-helper'
 
 module Transaction
   STATUSES = %i[queued processing success error].freeze
@@ -15,19 +15,6 @@ module Transaction
 
   def self.configure
     yield self
-  end
-
-  def self.redis=(hash = {})
-    @redis = if hash.instance_of?(Redis)
-               hash
-             else
-               Redis.new(hash)
-             end
-  end
-
-  def self.redis
-    # use default redis if not set
-    @redis ||= Redis.new
   end
 
   def self.pubsub_client=(client:, trigger:, channel_name: nil, event: 'status')
@@ -54,7 +41,7 @@ module Transaction
     def initialize(transaction_id: nil, options: {})
       @transaction_id = transaction_id ||
                         "transact-#{SecureRandom.urlsafe_base64(16)}"
-      @redis_client = Transaction.redis
+      @redis_client = RedisHelper.new
       @pubsub_client = Transaction.pubsub_client
 
       options = DEFAULT_ATTRIBUTES.merge(options)
@@ -71,7 +58,7 @@ module Transaction
       end
 
       @attributes = symbolize_keys!(@attributes.merge!(options))
-      redis_set(@transaction_id, @attributes.to_json)
+      @redis_client.redis_set(@transaction_id, @attributes.to_json)
       @status = @attributes[:status].to_s
     end
 
@@ -90,12 +77,12 @@ module Transaction
     def finish!(status: 'success', clear: false, data: {})
       update_status(status)
       trigger_event!({ message: 'Done' }.merge(data))
-      redis_delete if clear
+      @redis_client.redis_delete(@transaction_id) if clear
     end
 
     def clear!
       @attributes = @status = nil
-      redis_delete
+      @redis_client.redis_delete(@transaction_id)
     end
 
     def refresh!
@@ -120,7 +107,7 @@ module Transaction
     private
 
     def parsed_attributes
-      data = redis_get
+      data = @redis_client.redis_get(@transaction_id)
       return nil if data.nil?
 
       begin
@@ -133,19 +120,6 @@ module Transaction
       end
 
       response
-    end
-
-    # redis methods
-    def redis_get
-      @redis_client.get(@transaction_id)
-    end
-
-    def redis_set(key, value)
-      @redis_client.set(key, value)
-    end
-
-    def redis_delete
-      @redis_client.del(@transaction_id)
     end
   end
 
