@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Transaction
   class Client
     attr_reader :transaction_id, :status, :attributes
