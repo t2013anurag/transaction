@@ -23,7 +23,7 @@ GEM
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
     rake (12.3.3)
-    redis (4.1.2)
+    redis (4.7.0)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
